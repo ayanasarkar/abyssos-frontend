@@ -3,1295 +3,201 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Ábyssos analyst console — evidence-grounded super-resolution for medium-resolution satellite imagery. PS 26142 · NTRO · Team God_Axis.">
-<style>
-  :root{ color-scheme: dark; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
-  body{ margin:0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size:14px; background:#050607; }
-  img{ max-width:100%; }
-  [hidden]{ display:none !important; }
-</style>
-<title>Ábyssos Console</title>
+<meta name="description" content="Ábyssos: evidence-grounded super-resolution for 10 m Sentinel-2 imagery. PS 26142 · NTRO · Team God_Axis.">
+<title>Ábyssos · Evidence-grounded super-resolution</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
 :root{
-  color-scheme: dark;
-  --bg:#050607;
-  --panel:#0A0B0D;
-  --panel-2:#101215;
-  --panel-3:#16191D;
-  --line:#20242A;
-  --line-2:#2C3138;
-  --text:#EEF1F4;
-  --muted:#8A929B;
-  --dim:#575E67;
-  --accent:#FFFFFF;
-  --ev-v:#3DFF9A;
-  --ev-s:#3FE0FF;
-  --ev-p:#FF3B4A;
-  --amber:#FFB020;
-  --violet:#B388FF;
-  --mono:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --sans:"IBM Plex Sans", system-ui, -apple-system, Segoe UI, sans-serif;
-  --disp:"Archivo", "IBM Plex Sans", system-ui, sans-serif;
+  color-scheme:dark;
+  --bg:#050607;--panel:#0A0B0D;--panel-2:#101215;--panel-3:#16191D;
+  --line:#20242A;--line-2:#2C3138;--text:#EEF1F4;--muted:#8A929B;--dim:#575E67;
+  --ev-v:#3DFF9A;--ev-s:#3FE0FF;--ev-p:#FF3B4A;--amber:#FFB020;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --disp:"Archivo","IBM Plex Sans",system-ui,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
 }
 *{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0; background:var(--bg); color:var(--text);
-  font-family:var(--sans); font-size:13px; line-height:1.45;
-  -webkit-font-smoothing:antialiased;
-}
-button,select,input{font:inherit;color:inherit}
-button{background:none;border:0;cursor:pointer}
-:focus-visible{outline:1px solid var(--accent);outline-offset:2px}
+html{scroll-behavior:smooth;scroll-padding-top:70px}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:1px solid #fff;outline-offset:3px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+.mono{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
 
-.app{height:100%;display:flex;flex-direction:column;min-height:0}
+/* nav */
+nav{position:sticky;top:0;z-index:10;background:rgba(5,6,7,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:22px;height:56px}
+.wm{font-family:var(--disp);font-weight:700;font-size:17px;letter-spacing:.2em;text-transform:uppercase}
+.sp{flex:1}
+nav a.l{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+nav a.l:hover{color:var(--text)}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:12px 20px;border:1px solid var(--line-2);color:var(--text);transition:background .15s,color .15s,border-color .15s}
+.btn:hover{border-color:#fff}
+.btn.pri{background:#fff;color:#000;border-color:#fff;font-weight:600}
+.btn.pri:hover{background:var(--ev-v);border-color:var(--ev-v)}
+nav .btn{padding:8px 14px}
 
-/* ── header ───────────────────────────────────── */
-.top{
-  flex:0 0 auto; display:flex; align-items:center; gap:14px;
-  padding:0 14px; padding-top:env(safe-area-inset-top,0px);
-  height:calc(54px + env(safe-area-inset-top,0px));
-  background:var(--panel); border-bottom:1px solid var(--line);
-}
-.wm{display:flex;align-items:baseline;gap:9px;min-width:0}
-.wm b{
-  font-family:var(--disp); font-weight:700; font-size:17px;
-  letter-spacing:.20em; text-transform:uppercase; white-space:nowrap;
-}
-.wm span{
-  font-family:var(--mono); font-size:9.5px; letter-spacing:.14em;
-  color:var(--dim); text-transform:uppercase; white-space:nowrap;
-}
-.top .sp{flex:1}
-.ctl{
-  display:flex;align-items:center;gap:6px;
-  background:var(--panel-2); border:1px solid var(--line);
-  padding:5px 8px; height:30px;
-}
-.ctl label{
-  font-family:var(--mono);font-size:9px;letter-spacing:.14em;
-  color:var(--dim);text-transform:uppercase;
-}
-.ctl select{
-  background:none;border:0;font-family:var(--mono);font-size:11px;
-  letter-spacing:.02em;padding:0;cursor:pointer;max-width:180px;
-}
-.tabs{display:flex;border:1px solid var(--line);height:30px}
-.tabs button{
-  font-family:var(--mono);font-size:10px;letter-spacing:.16em;
-  text-transform:uppercase;padding:0 13px;color:var(--dim);
-}
-.tabs button[aria-selected="true"]{background:var(--accent);color:#000;font-weight:600}
-.pill{
-  font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;
-  border:1px solid var(--line-2);padding:4px 8px;color:var(--muted);
-  display:flex;align-items:center;gap:6px;white-space:nowrap;
-}
-.dot{width:5px;height:5px;border-radius:50%;background:var(--ev-v);box-shadow:0 0 7px var(--ev-v)}
+/* hero */
+.hero{padding:84px 0 72px;border-bottom:1px solid var(--line);background:radial-gradient(70% 60% at 78% 30%,rgba(63,224,255,.07),transparent 70%)}
+.hero .wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center}
+.tag{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line-2);padding:5px 10px;margin-bottom:26px}
+.tag i{width:5px;height:5px;border-radius:50%;background:var(--ev-v);box-shadow:0 0 7px var(--ev-v)}
+h1{font-family:var(--disp);font-weight:700;font-size:clamp(34px,5.4vw,60px);line-height:1.04;letter-spacing:-.01em;margin:0 0 22px}
+h1 em{font-style:normal;color:var(--ev-v)}
+.lede{color:var(--muted);font-size:17px;max-width:540px;margin:0 0 32px}
+.cta{display:flex;flex-wrap:wrap;gap:12px}
 
-/* ── quick jump ───────────────────────────────── */
-.jump{
-  flex:0 0 auto;display:flex;align-items:center;gap:0;
-  background:var(--bg);border-bottom:1px solid var(--line);
-  overflow-x:auto;scrollbar-width:none;
-}
-.jump::-webkit-scrollbar{display:none}
-.jump b{
-  font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--dim);
-  text-transform:uppercase;padding:0 12px;white-space:nowrap;font-weight:400;
-}
-.jump button{
-  font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;
-  padding:8px 14px;color:var(--muted);border-left:1px solid var(--line);
-  white-space:nowrap;position:relative;
-}
-.jump button kbd{
-  font-family:var(--mono);font-size:8.5px;color:var(--dim);
-  border:1px solid var(--line-2);padding:0 3px;margin-right:6px;
-}
-.jump button[aria-current="true"]{color:var(--text);background:var(--panel-2)}
-.jump button[aria-current="true"]::after{
-  content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:var(--accent);
-}
+/* pixel visual */
+.vis{border:1px solid var(--line);background:var(--panel);padding:22px}
+.vis .hd{display:flex;justify-content:space-between;margin-bottom:16px}
+.px{aspect-ratio:1;display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:#000;padding:0;transition:gap .7s cubic-bezier(.2,.8,.2,1),padding .7s}
+.px.split{gap:5px;padding:5px}
+.c{background:#3a3f46;transition:background .7s;transition-delay:calc(var(--i)*35ms)}
+.px.split .c{background:var(--k)}
+.cap{margin-top:14px;font-size:13px;color:var(--muted);min-height:42px}
+.cap b{color:var(--text);font-weight:500}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:8px;height:8px;margin-right:6px;background:var(--k)}
 
-/* ── body ─────────────────────────────────────── */
-.body{flex:1 1 auto;display:flex;min-height:0}
-.side{
-  flex:0 0 268px;background:var(--panel);border-right:1px solid var(--line);
-  overflow-y:auto;display:flex;flex-direction:column;
-}
-.blk{padding:14px;border-bottom:1px solid var(--line)}
-.blk h3{
-  margin:0 0 10px;font-family:var(--mono);font-size:9px;font-weight:500;
-  letter-spacing:.20em;text-transform:uppercase;color:var(--dim);
-  display:flex;justify-content:space-between;align-items:center;
-}
+/* sections */
+section{padding:76px 0;border-bottom:1px solid var(--line)}
+h2{font-family:var(--disp);font-weight:600;font-size:clamp(24px,3.2vw,34px);line-height:1.15;margin:10px 0 16px;letter-spacing:-.005em}
+.sub{color:var(--muted);max-width:660px;margin:0 0 40px}
+.grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.card{background:var(--panel);padding:24px 22px}
+.card:hover{background:var(--panel-2)}
+.card .n{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--dim)}
+.card h3{font-family:var(--disp);font-weight:600;font-size:18px;margin:10px 0 8px}
+.card p{margin:0;color:var(--muted);font-size:13.5px}
+.card .bar{height:2px;width:34px;background:var(--k,#fff);margin-bottom:16px}
+.quote{border-left:2px solid var(--ev-v);padding:6px 0 6px 20px;font-family:var(--disp);font-size:clamp(20px,2.6vw,28px);line-height:1.3;max-width:760px}
+.quote small{display:block;margin-top:10px;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.cta-band{text-align:center;padding:84px 0}
+.cta-band .cta{justify-content:center}
+footer{padding:26px 0 40px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between}
 
-/* layers */
-.layer{display:flex;align-items:center;gap:9px;padding:5px 0;cursor:pointer;font-size:12px}
-.layer:hover{color:#fff}
-.box{
-  width:13px;height:13px;flex:0 0 auto;border:1px solid var(--line-2);
-  display:grid;place-items:center;background:var(--panel-2);
+@media(max-width:900px){
+  .hero .wrap{grid-template-columns:1fr;gap:40px}
+  .g4{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:1fr}
+  nav a.l{display:none}
 }
-.box.rnd{border-radius:50%}
-.layer[aria-pressed="true"] .box{background:var(--accent);border-color:var(--accent)}
-.layer[aria-pressed="true"] .box::after{
-  content:"";width:5px;height:5px;background:#000;
-}
-.layer .k{margin-left:auto;font-family:var(--mono);font-size:8.5px;color:var(--dim)}
-
-/* evidence bar */
-.evbar{display:flex;height:22px;width:100%;border:1px solid var(--line);margin-bottom:9px;overflow:hidden}
-.evbar button{height:100%;position:relative;transition:filter .12s}
-.evbar button:hover{filter:brightness(1.35)}
-.evbar button[aria-pressed="true"]{box-shadow:inset 0 0 0 1px #000, inset 0 0 0 2px currentColor}
-.evrow{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:11.5px;cursor:pointer}
-.sw{width:9px;height:9px;flex:0 0 auto}
-.evrow .pc{margin-left:auto;font-family:var(--mono);font-size:11px;font-variant-numeric:tabular-nums}
-.evrow[aria-pressed="true"]{color:#fff}
-.evrow .nm{letter-spacing:.02em}
-.defs{margin:10px 0 0;padding:10px 0 0;border-top:1px solid var(--line);font-size:11px;color:var(--muted)}
-.defs p{margin:0 0 7px;line-height:1.5}
-.defs p:last-child{margin:0}
-.defs b{color:var(--text);font-weight:600}
-.measured{
-  font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;color:var(--dim);
-  text-transform:uppercase;margin-top:9px;
-}
-
-/* opacity */
-input[type=range]{
-  -webkit-appearance:none;appearance:none;width:100%;height:2px;background:var(--line-2);
-  margin:9px 0;cursor:pointer;
-}
-input[type=range]::-webkit-slider-thumb{
-  -webkit-appearance:none;width:11px;height:11px;background:var(--accent);border-radius:0;
-}
-input[type=range]::-moz-range-thumb{width:11px;height:11px;background:var(--accent);border:0;border-radius:0}
-
-/* api block */
-.api{margin-top:auto}
-.ep{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:9.5px;color:var(--muted);padding:3px 0}
-.ep i{font-style:normal;color:var(--dim);width:30px;flex:0 0 auto}
-.ep u{margin-left:auto;text-decoration:none;color:var(--ev-v);font-size:8.5px}
-.flip{
-  margin-top:10px;background:#000;border:1px solid var(--line);padding:8px;
-  font-family:var(--mono);font-size:9.5px;color:var(--muted);line-height:1.6;
-  overflow-x:auto;white-space:pre;
-}
-.flip em{color:var(--ev-p);font-style:normal}
-.flip s{color:var(--dim);text-decoration:none}
-
-/* ── stage ────────────────────────────────────── */
-.stage{flex:1 1 auto;display:flex;flex-direction:column;min-width:0;min-height:0;position:relative}
-.mapwrap{flex:1 1 auto;position:relative;min-height:0;background:#000;overflow:hidden;cursor:crosshair}
-#map{display:block;width:100%;height:100%}
-
-.ov{position:absolute;pointer-events:none;font-family:var(--mono)}
-.ov.tl{top:12px;left:12px}
-.ov.tr{top:12px;right:12px;text-align:right}
-.ov.bl{bottom:12px;left:12px}
-.ov.br{bottom:12px;right:12px;text-align:right}
-.tag{
-  display:inline-block;background:rgba(5,6,7,.8);border:1px solid var(--line);
-  padding:4px 8px;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--muted);margin-bottom:5px;
-}
-.tag strong{color:var(--text);font-weight:600}
-.scalebar{display:flex;flex-direction:column;align-items:flex-start;gap:3px}
-.scaleline{height:6px;border:1px solid var(--text);border-top:0;background:rgba(5,6,7,.6)}
-.scaletxt{font-size:9.5px;color:var(--text);letter-spacing:.08em}
-.methodlbl{
-  position:absolute;top:76px;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
-  background:rgba(5,6,7,.82);border:1px solid var(--line);padding:4px 9px;color:var(--muted);
-  pointer-events:none;font-family:var(--mono);
-}
-#lblL{left:12px;transform:translateX(-100%)}
-#lblR{left:12px;color:var(--text)}
-
-#swipe{
-  position:absolute;top:0;bottom:0;width:2px;background:var(--accent);
-  transform:translateX(-1px);cursor:ew-resize;touch-action:none;
-}
-#swipe::before{
-  content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  width:30px;height:30px;border:1px solid var(--accent);background:rgba(5,6,7,.85);
-}
-#swipe::after{
-  content:"◀  ▶";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  font-family:var(--mono);font-size:8px;letter-spacing:.02em;color:var(--accent);white-space:nowrap;
-}
-
-/* frame strip */
-.frames{
-  flex:0 0 auto;background:var(--panel);border-top:1px solid var(--line);
-  padding:9px 12px;display:flex;align-items:center;gap:8px;overflow-x:auto;scrollbar-width:thin;
-}
-.frames>h3{
-  margin:0 10px 0 0;font-family:var(--mono);font-size:9px;font-weight:500;letter-spacing:.18em;
-  text-transform:uppercase;color:var(--dim);white-space:nowrap;
-}
-.fr{
-  flex:0 0 auto;border:1px solid var(--line);background:var(--panel-2);
-  padding:4px;display:flex;flex-direction:column;gap:3px;align-items:center;min-width:64px;
-}
-.fr canvas{display:block;width:54px;height:54px;background:#000}
-.fr .d{font-family:var(--mono);font-size:8.5px;letter-spacing:.04em;color:var(--muted)}
-.fr .c{font-family:var(--mono);font-size:8.5px;color:var(--dim);font-variant-numeric:tabular-nums}
-.fr.off{opacity:.42}
-.fr.off .c{color:var(--ev-p)}
-.fr[aria-pressed="true"]{border-color:var(--accent)}
-
-/* attribution */
-.attr{
-  position:absolute;left:0;right:0;bottom:0;background:var(--panel);
-  border-top:1px solid var(--line-2);transform:translateY(101%);
-  transition:transform .18s cubic-bezier(.2,.7,.3,1);z-index:6;max-height:74%;overflow-y:auto;
-}
-.attr.open{transform:translateY(0)}
-.attr-h{
-  display:flex;align-items:center;gap:11px;padding:11px 14px;border-bottom:1px solid var(--line);
-  flex-wrap:wrap;
-}
-.attr-h .t{font-family:var(--mono);font-size:12px;letter-spacing:.05em}
-.attr-h .t b{font-weight:600;text-transform:uppercase;letter-spacing:.12em}
-.badge{
-  font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;
-  padding:3px 8px;color:#000;font-weight:600;
-}
-.attr-h .x{margin-left:auto;color:var(--muted);font-size:16px;line-height:1;padding:2px 6px}
-.attr-b{padding:13px 14px;display:flex;gap:26px;flex-wrap:wrap}
-.stat .l{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
-.stat .v{font-family:var(--mono);font-size:19px;font-variant-numeric:tabular-nums;margin-top:2px}
-.thumbs{display:flex;gap:6px;flex-wrap:wrap;padding:0 14px 6px}
-.th{border:1px solid var(--line);background:var(--panel-2);padding:3px;cursor:pointer}
-.th canvas{display:block;width:58px;height:58px;background:#000}
-.th .d{font-family:var(--mono);font-size:8.5px;color:var(--muted);text-align:center;margin-top:3px}
-.th:hover{border-color:var(--accent)}
-.miss{padding:0 14px 14px;font-size:11.5px;color:var(--muted);font-family:var(--mono)}
-.miss span{color:var(--ev-p)}
-.warn{
-  margin:0 14px 14px;padding:10px 12px;border:1px solid var(--ev-p);
-  background:rgba(255,59,74,.07);font-size:12px;color:#FFD5D8;
-}
-.warn b{color:var(--ev-p)}
-
-/* ── results ──────────────────────────────────── */
-.results{flex:1 1 auto;overflow-y:auto;padding:22px;background:var(--bg)}
-.results-in{max-width:1020px;margin:0 auto;display:flex;flex-direction:column;gap:26px}
-.results h2{
-  font-family:var(--disp);font-size:13px;font-weight:600;letter-spacing:.18em;
-  text-transform:uppercase;margin:0 0 4px;
-}
-.results .sub{font-size:12px;color:var(--muted);margin:0 0 13px;max-width:62ch}
-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:11px}
-th,td{
-  text-align:right;padding:7px 9px;border-bottom:1px solid var(--line);
-  font-variant-numeric:tabular-nums;white-space:nowrap;
-}
-th:first-child,td:first-child{text-align:left}
-thead th{
-  font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);font-weight:500;
-  border-bottom:1px solid var(--line-2);
-}
-tbody tr.us td{background:var(--panel-2);color:var(--text)}
-tbody tr.us td:first-child{font-weight:600}
-td.n{color:var(--dim)}
-.best{color:var(--ev-v)}
-.tw{overflow-x:auto;border:1px solid var(--line);background:var(--panel)}
-.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px}
-.card{border:1px solid var(--line);background:var(--panel);padding:16px}
-.card h4{
-  margin:0 0 3px;font-family:var(--mono);font-size:10px;letter-spacing:.14em;
-  text-transform:uppercase;font-weight:500;
-}
-.card p{margin:0 0 12px;font-size:11.5px;color:var(--muted)}
-.card svg{width:100%;height:auto;display:block}
-
-.foot{
-  flex:0 0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
-  padding:7px 14px;padding-bottom:calc(7px + env(safe-area-inset-bottom,0px));
-  border-top:1px solid var(--line);background:var(--panel);
-  font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--dim);text-transform:uppercase;
-}
-.foot kbd{border:1px solid var(--line-2);padding:0 4px;color:var(--muted)}
-
-@media (max-width:900px){
-  .app{height:auto;min-height:100%}
-  .body{flex-direction:column}
-  .side{flex:0 0 auto;width:100%;border-right:0;border-bottom:1px solid var(--line);order:2}
-  .stage{order:1}
-  .mapwrap{height:min(62vh,440px);flex:0 0 auto}
-  .top{flex-wrap:wrap;height:auto;padding-bottom:9px;gap:9px}
-  .top .sp{display:none}
-  .wm{width:100%}
-}
-@media (prefers-reduced-motion:reduce){
-  *{transition:none!important;animation:none!important}
-}
+@media(max-width:520px){.g4{grid-template-columns:1fr}.hero{padding-top:52px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
-
 </head>
 <body>
-<div class="app">
-  <header class="top">
-    <div class="wm"><b>Ábyssos</b><span>PS 26142 · NTRO · Team God_Axis</span></div>
+<nav>
+  <div class="wrap">
+    <a class="wm" href="#top">Ábyssos</a>
     <div class="sp"></div>
-    <div class="ctl"><label for="aoi">AOI</label><select id="aoi"></select></div>
-    <div class="ctl"><label for="cmp">Compare</label><select id="cmp">
-      <option value="lr">Sentinel-2 LR (bicubic)</option>
-      <option value="esrgan">Real-ESRGAN</option>
-      <option value="swinir">SwinIR</option>
-      <option value="prev">Ábyssos SR · Mar window</option>
-    </select></div>
-    <div class="tabs" role="tablist">
-      <button id="tabMap" role="tab" aria-selected="true">Map</button>
-      <button id="tabRes" role="tab" aria-selected="false">Results</button>
-    </div>
-    <div class="pill" id="apiPill"><span class="dot"></span>Mock API</div>
-  </header>
-
-  <nav class="jump" id="jump"><b>Quick jump</b></nav>
-
-  <div class="body">
-    <aside class="side">
-      <div class="blk">
-        <h3>Layers</h3>
-        <div id="layers"></div>
-        <h3 style="margin-top:14px">Evidence opacity</h3>
-        <input type="range" id="op" min="0" max="100" value="48" aria-label="Evidence overlay opacity">
-        <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;color:var(--dim)">
-          <span>Image</span><span id="opv">48%</span><span>Truth</span>
-        </div>
-      </div>
-
-      <div class="blk">
-        <h3>Evidence <span id="evClick" style="color:var(--dim);text-transform:none;letter-spacing:0;font-size:9.5px">click to isolate</span></h3>
-        <div class="evbar" id="evbar">
-          <button data-c="V" style="color:var(--ev-v);background:var(--ev-v)" title="Verified"></button>
-          <button data-c="S" style="color:var(--ev-s);background:var(--ev-s)" title="Radar-supported"></button>
-          <button data-c="P" style="color:var(--ev-p);background:var(--ev-p)" title="Prior-only"></button>
-        </div>
-        <button class="evrow" data-c="V" aria-pressed="false"><i class="sw" style="background:var(--ev-v)"></i><span class="nm">Verified</span><span class="pc" id="pcV">—</span></button>
-        <button class="evrow" data-c="S" aria-pressed="false"><i class="sw" style="background:var(--ev-s)"></i><span class="nm">Radar-supported</span><span class="pc" id="pcS">—</span></button>
-        <button class="evrow" data-c="P" aria-pressed="false"><i class="sw" style="background:var(--ev-p)"></i><span class="nm">Prior-only</span><span class="pc" id="pcP">—</span></button>
-        <div class="defs">
-          <p><b>Verified</b> — confirmed by several real satellite passes.</p>
-          <p><b>Radar-supported</b> — optical was blocked; Sentinel-1 radar confirms the structure.</p>
-          <p><b>Prior-only</b> — the model's best guess. Treat with caution.</p>
-        </div>
-        <div class="measured" id="measured">Measured from the rendered map</div>
-      </div>
-
-      <div class="blk api">
-        <h3>API <span style="color:var(--dim);text-transform:none;letter-spacing:0;font-size:9.5px">src/api/client.js</span></h3>
-        <div class="ep"><i>GET</i>/aois<u>200</u></div>
-        <div class="ep"><i>GET</i>/result/{job}<u>200</u></div>
-        <div class="ep"><i>POST</i>/attribute/{job}<u>200</u></div>
-        <div class="ep"><i>GET</i>/tile/{job}/sr/{z}/{x}/{y}<u>mock</u></div>
-        <div class="ep"><i>GET</i>/tile/{job}/evidence/{z}/{x}/{y}<u>mock</u></div>
-        <div class="flip"><s>const API =</s> <em>"http://localhost:8000"</em>
-<s>// one line flips mock → engine</s></div>
-      </div>
-    </aside>
-
-    <main class="stage" id="stageMap">
-      <div class="mapwrap" id="mapwrap">
-        <canvas id="map"></canvas>
-        <div class="methodlbl" id="lblL">Sentinel-2 LR · 10 m</div>
-        <div class="methodlbl" id="lblR">Ábyssos SR · 2.5 m (4× from 10 m)</div>
-        <div id="swipe"></div>
-        <div class="ov tl" id="ovAoi"></div>
-        <div class="ov tr" id="ovState"></div>
-        <div class="ov bl">
-          <div class="scalebar">
-            <div class="scaleline" id="sbline" style="width:120px"></div>
-            <div class="scaletxt" id="sbtxt">500 m</div>
-          </div>
-        </div>
-        <div class="ov br"><div class="tag" id="ovCur">—</div></div>
-
-        <section class="attr" id="attr" aria-live="polite">
-          <div class="attr-h">
-            <div class="t" id="atTitle"><b>Building</b> at 22.583°N, 88.441°E</div>
-            <span class="badge" id="atBadge">Verified</span>
-            <button class="x" id="atClose" aria-label="Close attribution">×</button>
-          </div>
-          <div class="attr-b">
-            <div class="stat"><div class="l">Supporting passes</div><div class="v" id="atFrames">6 / 8</div></div>
-            <div class="stat"><div class="l">Radar agreement</div><div class="v" id="atSar">0.82</div></div>
-            <div class="stat"><div class="l">Consistency residual</div><div class="v" id="atRes">0.031</div></div>
-            <div class="stat"><div class="l">Ensemble spread</div><div class="v" id="atSpread">0.09</div></div>
-          </div>
-          <div class="thumbs" id="atThumbs"></div>
-          <div class="miss" id="atMiss"></div>
-          <div class="warn" id="atWarn" hidden><b>No observation supports this feature.</b> The model generated it. Do not act on it alone.</div>
-        </section>
-      </div>
-
-      <div class="frames" id="frames"><h3>Passes used</h3></div>
-    </main>
-
-    <main class="results" id="stageRes" hidden>
-      <div class="results-in">
-        <section>
-          <h2>Benchmark · WorldStrat + Indian AOIs</h2>
-          <p class="sub">Rendered from the eval harness JSON. Unmeasured cells render as <span style="font-family:var(--mono);color:var(--dim)">—</span>, never as a placeholder number.</p>
-          <div class="tw"><table id="tblMain"></table></div>
-        </section>
-        <div class="charts">
-          <div class="card">
-            <h4>K-sweep · the thesis</h4>
-            <p>Road IoU against the number of real passes fused. More observed evidence, better result.</p>
-            <div id="chartK"></div>
-          </div>
-          <div class="card">
-            <h4>Auditor reliability</h4>
-            <p>ROC of the auditor score against true per-pixel error. AUROC 0.91.</p>
-            <div id="chartR"></div>
-          </div>
-        </div>
-        <section>
-          <h2>Ablation</h2>
-          <p class="sub">Each component removed from the full system, everything else held fixed.</p>
-          <div class="tw"><table id="tblAbl"></table></div>
-        </section>
-      </div>
-    </main>
+    <a class="l" href="#pipeline">Pipeline</a>
+    <a class="l" href="#evidence">Evidence</a>
+    <a class="l" href="#why4x">Why 4×</a>
+    <a class="btn pri" href="console.html">Open console</a>
   </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div>
+      <div class="tag mono"><i></i>PS 26142 · NTRO · Team God_Axis</div>
+      <h1>Super-resolution you can <em>audit</em>, pixel by pixel.</h1>
+      <p class="lede">Ábyssos sharpens 10 m Sentinel-2 imagery to 2.5 m and shows, for every pixel, whether the detail was observed in real satellite passes or only guessed by the model.</p>
+      <div class="cta">
+        <a class="btn pri" href="console.html">Open analyst console →</a>
+        <a class="btn" href="evidence3d.html">3D evidence stack</a>
+      </div>
+    </div>
+    <div class="vis" aria-label="One 10 metre pixel splitting into sixteen 2.5 metre sub-pixels coloured by evidence class">
+      <div class="hd mono"><span>One 10 m pixel</span><span>→ 4 × 4 at 2.5 m</span></div>
+      <div class="px" id="px"></div>
+      <div class="cap" id="cap"></div>
+      <div class="legend">
+        <span style="--k:var(--ev-v)">Verified</span>
+        <span style="--k:var(--ev-s)">Radar-supported</span>
+        <span style="--k:var(--ev-p)">Prior-only</span>
+      </div>
+      <div class="mono" style="margin-top:14px;font-size:9.5px">Illustrative pattern, not job output</div>
+    </div>
+  </div>
+</header>
+
+<section id="pipeline">
+  <div class="wrap">
+    <div class="mono">Pipeline</div>
+    <h2>Four modules. One accountable output.</h2>
+    <p class="sub">The novelty is not a bigger network. It is a per-pixel evidence map that travels with every super-resolved image.</p>
+    <div class="grid g4">
+      <div class="card"><div class="n">M1</div><h3>Evidence Harvester</h3><p>Collects multiple Sentinel-2 passes plus Sentinel-1 radar over the same area, and records which passes were clear or blocked.</p></div>
+      <div class="card"><div class="n">M2</div><h3>Multi-Frame SR</h3><p>Fuses the passes into one 4× output, from 10 m to 2.5 m, using real sub-pixel differences between acquisitions.</p></div>
+      <div class="card"><div class="n">M3</div><h3>Truth Auditor</h3><p>Scores each pixel using consistency residual, ensemble disagreement and radar edge agreement.</p></div>
+      <div class="card"><div class="n">M4</div><h3>Analyst Console</h3><p>Roads, buildings, change detection and phantom flags, each traceable to the dated passes behind it.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="evidence">
+  <div class="wrap">
+    <div class="mono">Evidence map</div>
+    <h2>Every pixel says how much to trust it.</h2>
+    <p class="sub">A normal super-resolution model can invent a convincing building that was never there. Ábyssos labels that risk instead of hiding it.</p>
+    <div class="grid g3">
+      <div class="card" style="--k:var(--ev-v)"><div class="bar"></div><h3>Verified</h3><p>Confirmed by several real satellite passes.</p></div>
+      <div class="card" style="--k:var(--ev-s)"><div class="bar"></div><h3>Radar-supported</h3><p>Optical was blocked, and Sentinel-1 radar confirms the structure.</p></div>
+      <div class="card" style="--k:var(--ev-p)"><div class="bar"></div><h3>Prior-only</h3><p>The model's best guess. Treat with caution.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="why4x">
+  <div class="wrap">
+    <div class="mono">Design choice</div>
+    <h2>Why 4×, and not 20×.</h2>
+    <p class="quote">A 10 m pixel cannot hold 0.5 m information, so we choose 4×.
+      <small>Scale is limited by what the passes actually observed</small></p>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="wrap">
+    <div class="mono">Wayanad · Brahmaputra · Kolkata · Gangetic farmland</div>
+    <h2>See the evidence behind the image.</h2>
+    <div class="cta" style="margin-top:28px">
+      <a class="btn pri" href="console.html">Open analyst console →</a>
+      <a class="btn" href="evidence3d.html">3D evidence stack</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap mono">
+    <span>Ábyssos · PS 26142 · NTRO · Team God_Axis</span>
+    <span>Demo mode · cached tiles · figures are fixed demo values unless marked measured</span>
+  </div>
+</footer>
 
-  <footer class="foot">
-    <span><kbd>1</kbd>–<kbd>5</kbd> jump</span>
-    <span><kbd>E</kbd> evidence</span>
-    <span><kbd>W</kbd> swipe</span>
-    <span><kbd>P</kbd> phantoms</span>
-    <span><kbd>Esc</kbd> close panel</span>
-    <span style="margin-left:auto" id="footState">Demo mode · cached tiles · no network</span>
-  </footer>
-</div>
-
-<script>
-"use strict";
-
-/* ═══ 1. DATA — every fetch would live here (src/api/client.js) ═══ */
-
-const AOIS = [
-  {id:"kolkata", key:"1", name:"Kolkata peri-urban",          bbox:[88.40,22.55,88.48,22.62], seed:41, cloud:0.10, kind:"urban"},
-  {id:"assam",   key:"2", name:"Brahmaputra floodplain",      bbox:[91.60,26.10,91.70,26.20], seed:77, cloud:0.58, kind:"flood"},
-  {id:"wayanad", key:"3", name:"Wayanad landslide zone",      bbox:[76.05,11.60,76.15,11.70], seed:13, cloud:0.32, kind:"hill"},
-  {id:"farm",    key:"4", name:"Gangetic smallholder farmland",bbox:[81.20,25.80,81.30,25.90],seed:5,  cloud:0.14, kind:"farm"},
-  {id:"phantom", key:"5", name:"Phantom test · confirmed empty",bbox:[81.35,25.60,81.45,25.70],seed:99,cloud:0.05, kind:"bare"}
-];
-
-const MOCK = {
-  aois: () => AOIS.map(a => ({id:a.id, name:a.name, bbox:a.bbox})),
-  result: (id) => {
-    const a = AOIS.find(x => x.id === id), r = rng(a.seed * 7);
-    const frames = Array.from({length:8}, (_,i) => {
-      const clear = Math.max(0.04, Math.min(0.99, 1 - a.cloud * (0.4 + 1.5 * r())));
-      const d = new Date(Date.UTC(2026, 2, 3 + 5*i));
-      return {k:i, date:d.toISOString().slice(0,10),
-              clear_fraction:+clear.toFixed(2), used:clear > 0.35};
-    });
-    return {job_id:`job_${id}`, frames, sar:{date:"2026-03-04", available:true, pol:["VV","VH"]}};
-  },
-  // attribute() is computed from the rendered evidence masks — see attribute()
-};
-
-const RESULTS = {
-  cols:["Road IoU","Bldg F1","Phantom /km²","Auditor AUROC","SAM°","cPSNR"],
-  rows:[
-    {m:"Bicubic ×4",        v:[0.31, 0.29, 0.0,  null, 0.9,  24.1]},
-    {m:"Real-ESRGAN",       v:[0.44, 0.51, 7.4,  null, 4.8,  23.3]},
-    {m:"SwinIR",            v:[0.47, 0.54, 2.9,  null, 2.6,  25.7]},
-    {m:"SR3 (diffusion)",   v:[0.46, 0.55, 6.1,  null, 5.2,  null]},
-    {m:"HighRes-net (MFSR)",v:[0.52, 0.57, 0.8,  null, 1.4,  26.9]},
-    {m:"Ábyssos",           v:[0.61, 0.66, 0.3,  0.91, 1.1,  27.8], us:true}
-  ],
-  best:[0.61, 0.66, 0.0, 0.91, 0.9, 27.8],
-  lowerBetter:[false,false,true,false,true,false],
-  abl:{
-    cols:["Road IoU","Phantom /km²","AUROC"],
-    rows:[
-      {m:"Full system",              v:[0.61, 0.3, 0.91]},
-      {m:"− SAR branch",             v:[0.56, 0.5, 0.88]},
-      {m:"− multi-frame (K=1)",      v:[0.46, 2.6, 0.79]},
-      {m:"− consistency residual",   v:[0.60, 1.9, 0.71]},
-      {m:"− ensemble disagreement",  v:[0.61, 0.9, 0.83]},
-      {m:"− calibration sweep",      v:[0.61, 0.4, null]}
-    ]
-  },
-  ksweep:[[1,0.46],[2,0.51],[3,0.545],[4,0.572],[5,0.589],[6,0.599],[7,0.606],[8,0.61]],
-  roc:[[0,0],[0.03,0.30],[0.07,0.48],[0.12,0.63],[0.20,0.76],[0.32,0.86],[0.48,0.93],[0.68,0.97],[1,1]]
-};
-
-/* ═══ 2. SCENE SYNTHESIS (stands in for tiles from /tile/...) ═══ */
-
-function rng(s){ let a = s >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0;
-  let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
-  return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
-
-function makeScene(aoi){
-  const r = rng(aoi.seed), S = {roads:[],builds:[],fields:[],water:[],phantoms:[],
-    prior:[], cloud:null, changes:[], scars:[]};
-  const pick = () => { const u = r(); return u < 0.80 ? "V" : u < 0.93 ? "S" : "P"; };
-
-  // cloud / radar region
-  S.cloud = {cx:0.26 + 0.48*r(), cy:0.24 + 0.5*r(),
-             rx:0.12 + 0.62*aoi.cloud, ry:0.10 + 0.56*aoi.cloud, rot:r()*3.14};
-  const inCloud = (x,y) => { if (!S.cloud) return false; const c = S.cloud;
-    const dx = (x-c.cx)/c.rx, dy = (y-c.cy)/c.ry; return dx*dx + dy*dy < 1; };
-
-  // prior-only blobs
-  const nP = aoi.kind === "bare" ? 2 : 3 + Math.floor(r()*3);
-  for (let i = 0; i < nP; i++){
-    const cx = 0.08 + 0.84*r(), cy = 0.08 + 0.84*r(), lobes = 2 + Math.floor(r()*3);
-    for (let j = 0; j < lobes; j++)
-      S.prior.push({cx:cx + (r()-0.5)*0.06, cy:cy + (r()-0.5)*0.05,
-                    rx:0.018 + 0.036*r(), ry:0.015 + 0.030*r(), rot:r()*3.14});
-  }
-
-  // fields / ground texture
-  const nF = aoi.kind === "farm" ? 46 : aoi.kind === "bare" ? 14 : 22;
-  for (let i = 0; i < nF; i++){
-    const w = 0.07 + 0.17*r(), h = 0.05 + 0.13*r();
-    S.fields.push({x:r()*(1-w), y:r()*(1-h), w, h, t:0.10 + 0.30*r(), a:(r()-0.5)*0.22});
-  }
-
-  // water
-  if (aoi.kind === "flood" || aoi.kind === "urban"){
-    const wide = aoi.kind === "flood";
-    const pts = [], n = 7, base = 0.30 + 0.4*r();
-    for (let i = 0; i <= n; i++) pts.push([i/n, base + Math.sin(i*1.25 + aoi.seed)*0.11 + (r()-0.5)*0.04]);
-    S.water.push({pts, w:wide ? 0.115 : 0.022});
-  }
-  if (aoi.kind === "hill"){
-    for (let i = 0; i < 3; i++){
-      const pts = [], n = 6, base = 0.2 + 0.25*i;
-      for (let j = 0; j <= n; j++) pts.push([j/n, base + Math.sin(j*1.9 + i)*0.05]);
-      S.scars.push({pts, w:0.018 + 0.03*r()});
-    }
-  }
-
-  // roads
-  const nR = aoi.kind === "bare" ? 0 : aoi.kind === "urban" ? 13 : aoi.kind === "farm" ? 8 : 6;
-  for (let i = 0; i < nR; i++){
-    const horiz = r() < 0.5, off = 0.06 + 0.88*r(), pts = [], n = 5;
-    for (let j = 0; j <= n; j++){
-      const t = j/n, wob = (r()-0.5)*0.05;
-      pts.push(horiz ? [t, off + wob] : [off + wob, t]);
-    }
-    const mid = pts[3];
-    S.roads.push({pts, w:0.0022 + 0.0045*r(), ev: inCloud(mid[0],mid[1]) ? "S" : pick()});
-  }
-
-  // buildings
-  const nB = aoi.kind === "urban" ? 150 : aoi.kind === "flood" ? 42 : aoi.kind === "farm" ? 30 : 0;
-  const cl = Array.from({length:Math.max(1,Math.round(nB/22))}, () => [0.1 + 0.8*r(), 0.1 + 0.8*r()]);
-  for (let i = 0; i < nB; i++){
-    const c = cl[Math.floor(r()*cl.length)];
-    const x = Math.min(0.97, Math.max(0.01, c[0] + (r()-0.5)*0.30));
-    const y = Math.min(0.97, Math.max(0.01, c[1] + (r()-0.5)*0.30));
-    S.builds.push({x, y, w:0.008 + 0.017*r(), h:0.008 + 0.016*r(), t:0.34 + 0.42*r(),
-      ev: inCloud(x,y) ? "S" : pick()});
-  }
-
-  // GAN phantoms (what Real-ESRGAN invents; Ábyssos flags or omits them)
-  const nPh = aoi.kind === "bare" ? 4 : 2;
-  for (let i = 0; i < nPh; i++){
-    const horiz = r() < 0.5, off = 0.15 + 0.7*r(), pts = [], n = 4;
-    for (let j = 0; j <= n; j++){ const t = 0.12 + 0.76*(j/n);
-      pts.push(horiz ? [t, off + (r()-0.5)*0.03] : [off + (r()-0.5)*0.03, t]); }
-    S.phantoms.push({pts, w:0.003 + 0.003*r()});
-    const m = pts[2]; S.prior.push({cx:m[0], cy:m[1], rr:0.05 + 0.03*r()});
-  }
-
-  // change detection polygons
-  const nC = aoi.kind === "bare" ? 1 : 5;
-  for (let i = 0; i < nC; i++){
-    const u = r();
-    S.changes.push({x:0.08 + 0.8*r(), y:0.08 + 0.8*r(), w:0.03 + 0.06*r(), h:0.03 + 0.05*r(),
-      t: u < 0.5 ? "new" : u < 0.78 ? "gone" : "unrel"});
-  }
-  return S;
-}
-
-/* ═══ 3. RASTER RENDERING ═══ */
-
-let noisePat = null;
-function noise(){
-  if (noisePat) return noisePat;
-  const c = document.createElement("canvas"); c.width = c.height = 128;
-  const x = c.getContext("2d"), d = x.createImageData(128,128);
-  for (let i = 0; i < d.data.length; i += 4){
-    const v = 118 + (Math.random()-0.5)*80;
-    d.data[i] = d.data[i+1] = d.data[i+2] = v; d.data[i+3] = 255;
-  }
-  x.putImageData(d,0,0); noisePat = c; return c;
-}
-
-const g = (v) => { const n = Math.round(Math.max(0, Math.min(255, v*255)));
-  return `rgb(${n},${n},${n})`; };
-
-function poly(ctx, pts, W, H, w){
-  ctx.beginPath();
-  pts.forEach((p,i) => i ? ctx.lineTo(p[0]*W, p[1]*H) : ctx.moveTo(p[0]*W, p[1]*H));
-  ctx.lineWidth = Math.max(0.6, w*W); ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.stroke();
-}
-
-/* mode: lr | sr | esrgan | swinir | prev ; opt.frame → per-pass jitter + cloud veil */
-function drawScene(ctx, W, H, S, mode, opt){
-  opt = opt || {};
-  const soft = mode === "swinir", fake = mode === "esrgan";
-  ctx.save();
-  if (opt.frame != null){
-    const r = rng(opt.frame * 991 + 3);
-    ctx.translate((r()-0.5)*W*0.006, (r()-0.5)*H*0.006);
-  }
-  ctx.fillStyle = g(0.13); ctx.fillRect(-W,-H,W*3,H*3);
-
-  // ground texture
-  S.fields.forEach(f => { ctx.fillStyle = g(f.t + (soft ? 0.03 : 0));
-    ctx.fillRect(f.x*W, f.y*H, f.w*W, f.h*H); });
-  if (!soft){
-    ctx.strokeStyle = "rgba(255,255,255,.10)"; ctx.lineWidth = 0.7;
-    S.fields.forEach(f => ctx.strokeRect(f.x*W, f.y*H, f.w*W, f.h*H));
-  }
-
-  ctx.strokeStyle = g(0.055); S.water.forEach(w => poly(ctx, w.pts, W, H, w.w));
-  ctx.strokeStyle = g(0.26);  S.scars.forEach(w => poly(ctx, w.pts, W, H, w.w));
-
-  ctx.strokeStyle = g(fake ? 0.80 : 0.62);
-  S.roads.forEach(rd => poly(ctx, rd.pts, W, H, rd.w));
-
-  S.builds.forEach(b => {
-    ctx.fillStyle = g(b.t + (fake ? 0.16 : 0));
-    ctx.fillRect(b.x*W, b.y*H, b.w*W, b.h*H);
-    if (!soft){ ctx.fillStyle = "rgba(0,0,0,.55)";
-      ctx.fillRect((b.x + b.w)*W, (b.y + b.h*0.25)*H, b.w*W*0.34, b.h*H); }
-  });
-
-  if (fake){ // the GAN's invented structures
-    ctx.strokeStyle = g(0.78);
-    S.phantoms.forEach(p => poly(ctx, p.pts, W, H, p.w));
-  }
-
-  // sensor grain
-  const np = ctx.createPattern(noise(), "repeat");
-  ctx.globalAlpha = fake ? 0.16 : soft ? 0.05 : 0.10;
-  ctx.globalCompositeOperation = "overlay";
-  ctx.fillStyle = np; ctx.fillRect(0,0,W,H);
-  ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = 1;
-
-  if (opt.frame != null && opt.cloudAmt > 0.02){ // per-pass cloud veil
-    const r = rng(opt.frame * 31 + 7);
-    ctx.globalAlpha = Math.min(0.92, opt.cloudAmt);
-    const grd = ctx.createRadialGradient(r()*W, r()*H, 0, W*0.5, H*0.5, W*0.9);
-    grd.addColorStop(0,"rgba(235,240,245,.95)"); grd.addColorStop(1,"rgba(190,200,210,.15)");
-    ctx.fillStyle = grd; ctx.fillRect(0,0,W,H); ctx.globalAlpha = 1;
-  }
-  ctx.restore();
-}
-
-function renderLayer(W, H, S, mode, frameOpt){
-  const c = document.createElement("canvas"); c.width = W; c.height = H;
-  const x = c.getContext("2d");
-  if (mode === "lr"){
-    const q = 4, s = document.createElement("canvas");
-    s.width = Math.max(8, Math.round(W/q)); s.height = Math.max(8, Math.round(H/q));
-    drawScene(s.getContext("2d"), s.width, s.height, S, "lr", frameOpt || {});
-    x.imageSmoothingEnabled = true; x.imageSmoothingQuality = "high";
-    x.drawImage(s, 0, 0, W, H);
-    x.globalAlpha = 0.5; x.drawImage(s, 0, 0, W, H); x.globalAlpha = 1;
-  } else {
-    drawScene(x, W, H, S, mode, {cloudAmt:0});
-    if (mode === "swinir"){ x.filter = "blur(0.7px)"; x.drawImage(c,0,0); x.filter = "none"; }
-  }
-  return c;
-}
-
-function frameLayer(k){
-  const fr = st.res.frames[k];
-  return renderLayer(st.W, st.H, st.scene, "lr",
-    {frame:k, cloudAmt:(1 - fr.clear_fraction) * 1.6});
-}
-
-/* evidence class masks — verified everywhere minus radar & prior regions */
-function renderMasks(W, H, S){
-  const mk = () => { const c = document.createElement("canvas"); c.width = W; c.height = H;
-    return [c, c.getContext("2d")]; };
-  const [cV,xV] = mk(), [cS,xS] = mk(), [cP,xP] = mk();
-
-  const cloudPath = (x) => { if (!S.cloud) return false; const c = S.cloud;
-    x.beginPath(); x.ellipse(c.cx*W, c.cy*H, c.rx*W, c.ry*H, c.rot, 0, 6.2832); return true; };
-  const priorPaths = (x) => S.prior.forEach(p => {
-    x.beginPath(); x.ellipse(p.cx*W, p.cy*H, p.rx*W, p.ry*H, p.rot, 0, 6.2832); x.fill(); });
-
-  xV.fillStyle = "#fff"; xV.fillRect(0,0,W,H);
-  xV.globalCompositeOperation = "destination-out";
-  if (cloudPath(xV)) xV.fill();
-  priorPaths(xV);
-  xV.globalCompositeOperation = "source-over";
-
-  xS.fillStyle = "#fff"; if (cloudPath(xS)) xS.fill();
-  xS.globalCompositeOperation = "destination-out"; priorPaths(xS);
-  xS.globalCompositeOperation = "source-over";
-
-  xP.fillStyle = "#fff"; priorPaths(xP);
-
-  return {V:cV, S:cS, P:cP};
-}
-
-function tint(mask, rgba){
-  const c = document.createElement("canvas"); c.width = mask.width; c.height = mask.height;
-  const x = c.getContext("2d");
-  x.drawImage(mask,0,0); x.globalCompositeOperation = "source-in";
-  x.fillStyle = rgba; x.fillRect(0,0,c.width,c.height);
-  return c;
-}
-
-/* ═══ 4. STATE ═══ */
-
-const EV = {
-  V:{name:"Verified",        rgba:"rgba(61,255,154,.353)", hex:"#3DFF9A"},
-  S:{name:"Radar-supported", rgba:"rgba(63,224,255,.431)", hex:"#3FE0FF"},
-  P:{name:"Prior-only",      rgba:"rgba(255,59,74,.549)",  hex:"#FF3B4A"}
-};
-
-const st = {
-  aoi:AOIS[0], scene:null, res:null,
-  base:"sr", cmp:"lr", swipe:true, swipeX:0.46,
-  ev:true, op:0.48, roads:false, change:false, phantom:false,
-  isolate:null, activeFrame:null,
-  W:0, H:0, dpr:1,
-  cv:{}, masks:null, maskData:null, pct:{V:0,S:0,P:0}
-};
-
-const $ = (s) => document.querySelector(s);
-const map = $("#map"), wrap = $("#mapwrap"), ctx = map.getContext("2d");
-
-/* ═══ 5. BUILD / REBUILD ═══ */
-
-function rebuild(){
-  const rect = wrap.getBoundingClientRect();
-  st.dpr = Math.min(2, window.devicePixelRatio || 1);
-  st.W = Math.max(320, Math.round(rect.width * st.dpr));
-  st.H = Math.max(240, Math.round(rect.height * st.dpr));
-  map.width = st.W; map.height = st.H;
-  map.style.width = rect.width + "px"; map.style.height = rect.height + "px";
-
-  const S = st.scene;
-  st.cv.sr      = renderLayer(st.W, st.H, S, "sr");
-  st.cv.lr      = renderLayer(st.W, st.H, S, "lr");
-  st.cv.esrgan  = renderLayer(st.W, st.H, S, "esrgan");
-  st.cv.swinir  = renderLayer(st.W, st.H, S, "swinir");
-  st.cv.prev    = st.cv.sr;
-
-  st.masks = renderMasks(st.W, st.H, S);
-  const ec = document.createElement("canvas"); ec.width = st.W; ec.height = st.H;
-  const ex = ec.getContext("2d");
-  ["V","S","P"].forEach(k => ex.drawImage(tint(st.masks[k], EV[k].rgba), 0, 0));
-  st.cv.ev = ec;
-
-  // measure real class proportions from the rendered masks
-  st.maskData = {}; const total = st.W * st.H; const counts = {V:0,S:0,P:0};
-  ["V","S","P"].forEach(k => {
-    const d = st.masks[k].getContext("2d").getImageData(0,0,st.W,st.H);
-    st.maskData[k] = d;
-    let n = 0; for (let i = 3; i < d.data.length; i += 4) if (d.data[i] > 100) n++;
-    counts[k] = n;
-  });
-  const sum = counts.V + counts.S + counts.P || 1;
-  ["V","S","P"].forEach(k => st.pct[k] = counts[k]/sum);
-  paintLegend();
-  draw();
-}
-
-function paintLegend(){
-  const bar = $("#evbar");
-  ["V","S","P"].forEach(k => {
-    bar.querySelector(`[data-c="${k}"]`).style.flex = `0 0 ${(st.pct[k]*100).toFixed(2)}%`;
-    $("#pc" + k).textContent = (st.pct[k]*100).toFixed(1) + "%";
-  });
-  $("#measured").textContent = `Measured over ${(st.W*st.H/1e6).toFixed(1)} MP of output · job_${st.aoi.id}`;
-}
-
-function draw(){
-  const {W,H} = st;
-  ctx.clearRect(0,0,W,H);
-  const sx = st.swipe ? Math.round(st.swipeX * W) : 0;
-  const left = st.activeFrame != null ? st.cv.frame : (st.cv[st.cmp] || st.cv.lr);
-  const right = st.cv.sr;
-
-  if (st.swipe && sx > 0) ctx.drawImage(left, 0, 0);
-  ctx.save();
-  ctx.beginPath(); ctx.rect(sx, 0, W - sx, H); ctx.clip();
-  ctx.drawImage(right, 0, 0);
-
-  if (st.ev && st.op > 0){
-    if (st.isolate){
-      ctx.globalAlpha = 1;
-      ctx.drawImage(dimExcept(st.isolate), 0, 0);
-      ctx.globalAlpha = Math.max(0.55, st.op);
-      ctx.drawImage(tintCache(st.isolate), 0, 0);
-    } else {
-      ctx.globalAlpha = st.op;
-      ctx.drawImage(st.cv.ev, 0, 0);
-    }
-    ctx.globalAlpha = 1;
-  }
-
-  if (st.roads) drawVectors();
-  if (st.change) drawChanges();
-  if (st.phantom) drawPhantoms();
-  ctx.restore();
-
-  $("#swipe").hidden = !st.swipe;
-  const cssx = sx / st.dpr;
-  $("#swipe").style.left = cssx + "px";
-  $("#lblL").style.left = (cssx - 8) + "px";
-  $("#lblR").style.left = (st.swipe ? cssx + 8 : 12) + "px";
-  $("#lblL").hidden = !st.swipe;
-  $("#lblL").textContent = st.activeFrame != null
-    ? `Pass ${st.activeFrame + 1} · ${st.res.frames[st.activeFrame].date} · LR 10 m`
-    : ({lr:"Sentinel-2 LR · bicubic · 10 m", esrgan:"Real-ESRGAN · 2.5 m",
-        swinir:"SwinIR · 2.5 m", prev:"Ábyssos SR · Mar window"})[st.cmp];
-}
-
-const _cache = {};
-function tintCache(k){ return _cache["t"+k] || (_cache["t"+k] = tint(st.masks[k], EV[k].rgba)); }
-function dimExcept(k){
-  const key = "d" + k + st.W + st.H;
-  if (_cache[key]) return _cache[key];
-  const c = document.createElement("canvas"); c.width = st.W; c.height = st.H;
-  const x = c.getContext("2d");
-  x.fillStyle = "rgba(2,3,4,.90)"; x.fillRect(0,0,st.W,st.H);
-  x.globalCompositeOperation = "destination-out"; x.drawImage(st.masks[k],0,0);
-  _cache[key] = c; return c;
-}
-
-function drawVectors(){
-  const {W,H} = st, S = st.scene;
-  S.roads.forEach(rd => { ctx.strokeStyle = EV[rd.ev].hex; ctx.globalAlpha = 0.95;
-    poly(ctx, rd.pts, W, H, rd.w * 1.5); });
-  ctx.globalAlpha = 1; ctx.lineWidth = Math.max(1, st.dpr);
-  S.builds.forEach(b => { ctx.strokeStyle = EV[b.ev].hex;
-    ctx.strokeRect(b.x*W, b.y*H, b.w*W, b.h*H); });
-}
-
-function drawChanges(){
-  const {W,H} = st;
-  st.scene.changes.forEach(c => {
-    const col = c.t === "new" ? "#FFB020" : c.t === "gone" ? "#B388FF" : "#9AA3AD";
-    ctx.save();
-    ctx.strokeStyle = col; ctx.lineWidth = Math.max(1.2, st.dpr * 1.2);
-    if (c.t === "unrel"){ ctx.setLineDash([4*st.dpr, 4*st.dpr]); ctx.fillStyle = "rgba(154,163,173,.16)"; }
-    else if (c.t === "new") ctx.fillStyle = "rgba(255,176,32,.16)";
-    else ctx.fillStyle = "rgba(179,136,255,.16)";
-    ctx.fillRect(c.x*W, c.y*H, c.w*W, c.h*H);
-    ctx.strokeRect(c.x*W, c.y*H, c.w*W, c.h*H);
-    ctx.restore();
-  });
-}
-
-function drawPhantoms(){
-  const {W,H} = st;
-  ctx.save();
-  ctx.strokeStyle = EV.P.hex; ctx.globalAlpha = 0.95;
-  st.scene.phantoms.forEach(p => poly(ctx, p.pts, W, H, p.w * 1.6));
-  ctx.setLineDash([6*st.dpr, 5*st.dpr]); ctx.globalAlpha = 0.8;
-  ctx.strokeStyle = EV.V.hex; ctx.lineWidth = Math.max(1, st.dpr);
-  st.scene.phantoms.forEach(p => {
-    const a = p.pts[0], b = p.pts[p.pts.length-1];
-    ctx.strokeRect(Math.min(a[0],b[0])*W - 6, Math.min(a[1],b[1])*H - 6,
-      (Math.abs(b[0]-a[0]))*W + 12, (Math.abs(b[1]-a[1]))*H + 12);
-  });
-  ctx.restore();
-}
-
-/* ═══ 6. ATTRIBUTION ═══ */
-
-function classAt(px, py){
-  const i = (py * st.W + px) * 4 + 3;
-  if (st.maskData.P.data[i] > 100) return "P";
-  if (st.maskData.S.data[i] > 100) return "S";
-  return "V";
-}
-
-function featureAt(nx, ny){
-  const S = st.scene;
-  let best = null, bd = 0.02;
-  S.builds.forEach(b => {
-    if (nx > b.x - 0.004 && nx < b.x + b.w + 0.004 && ny > b.y - 0.004 && ny < b.y + b.h + 0.004)
-      { best = {kind:"Building", ev:b.ev}; bd = 0; }
-  });
-  if (best) return best;
-  S.roads.forEach(rd => {
-    for (let i = 1; i < rd.pts.length; i++){
-      const d = segDist(nx, ny, rd.pts[i-1], rd.pts[i]);
-      if (d < bd){ bd = d; best = {kind:"Road", ev:rd.ev}; }
-    }
-  });
-  if (best) return best;
-  S.phantoms.forEach(p => {
-    for (let i = 1; i < p.pts.length; i++)
-      if (segDist(nx, ny, p.pts[i-1], p.pts[i]) < 0.015) best = {kind:"Road", ev:"P", ghost:true};
-  });
-  if (best) return best;
-  if (S.water.some(w => w.pts.some(p => Math.hypot(p[0]-nx, p[1]-ny) < w.w*1.6)))
-    return {kind:"Water edge", ev:null};
-  return {kind:"Field surface", ev:null};
-}
-
-function segDist(x, y, a, b){
-  const dx = b[0]-a[0], dy = b[1]-a[1], L = dx*dx + dy*dy || 1e-9;
-  let t = ((x-a[0])*dx + (y-a[1])*dy) / L; t = Math.max(0, Math.min(1, t));
-  return Math.hypot(x - (a[0] + t*dx), y - (a[1] + t*dy));
-}
-
-/* POST /attribute/{job} — masked mean over the cached residual array */
-function attribute(nx, ny){
-  const px = Math.max(0, Math.min(st.W-1, Math.round(nx*st.W)));
-  const py = Math.max(0, Math.min(st.H-1, Math.round(ny*st.H)));
-  const cls = classAt(px, py);
-  const f = featureAt(nx, ny);
-  const r = rng(Math.round(nx*9973) * 131 + Math.round(ny*9973));
-  const frames = st.res.frames;
-  const usable = frames.filter(fr => fr.used);
-
-  let sup;
-  if (cls === "P") sup = [];
-  else if (cls === "S") sup = usable.slice(0, r() < 0.5 ? 1 : 2);
-  else sup = usable.slice(0, Math.max(4, Math.min(usable.length, 4 + Math.floor(r()*3))));
-
-  const supSet = new Set(sup.map(s => s.k));
-  const missing = frames.filter(fr => !supSet.has(fr.k)).map(fr => ({
-    ...fr, why: fr.clear_fraction < 0.35 ? "cloud" : cls === "P" ? "no signal" :
-      r() < 0.5 ? "off-swath" : "sun glint"
-  }));
-
-  return {
-    click:[nx, ny],
-    class:f.kind, evidence_class:cls,
-    supporting_frames:sup.length, total_frames:frames.length,
-    dates:sup.map(s => s.date),
-    frame_ids:sup.map(s => s.k),
-    sar_agreement: cls === "S" ? +(0.72 + 0.24*r()).toFixed(2)
-                 : cls === "V" ? +(0.66 + 0.30*r()).toFixed(2)
-                 : +(0.04 + 0.14*r()).toFixed(2),
-    residual: +(cls === "V" ? 0.015 + 0.03*r() : cls === "S" ? 0.04 + 0.05*r() : 0.19 + 0.16*r()).toFixed(3),
-    spread:   +(cls === "V" ? 0.04 + 0.06*r() : cls === "S" ? 0.10 + 0.08*r() : 0.31 + 0.22*r()).toFixed(2),
-    missing
-  };
-}
-
-function lonlat(nx, ny){
-  const [w,s,e,n] = st.aoi.bbox;
-  return [(s + (1-ny)*(n-s)).toFixed(3), (w + nx*(e-w)).toFixed(3)];
-}
-
-function thumbCanvas(cv, frameIdx, nx, ny, span){
-  const x = cv.getContext("2d"), S = cv.width;
-  const draw = S / span;
-  x.save(); x.clearRect(0,0,S,S);
-  x.translate(-(nx - span/2)*draw, -(ny - span/2)*draw);
-  const fr = st.res.frames[frameIdx];
-  const small = document.createElement("canvas");
-  small.width = small.height = Math.max(16, Math.round(draw/4));
-  drawScene(small.getContext("2d"), small.width, small.height, st.scene, "lr",
-    {frame:frameIdx, cloudAmt:(1 - fr.clear_fraction) * 1.6});
-  x.imageSmoothingEnabled = true;
-  x.drawImage(small, 0, 0, draw, draw);
-  x.restore();
-}
-
-function openAttr(nx, ny){
-  const a = attribute(nx, ny);
-  const [lat, lon] = lonlat(nx, ny);
-  const e = EV[a.evidence_class];
-
-  $("#atTitle").innerHTML = `<b>${a.class}</b> at ${lat}°N, ${lon}°E`;
-  const b = $("#atBadge"); b.textContent = e.name; b.style.background = e.hex;
-  $("#atFrames").textContent = `${a.supporting_frames} / ${a.total_frames}`;
-  $("#atFrames").style.color = a.supporting_frames ? "" : EV.P.hex;
-  $("#atSar").textContent = a.sar_agreement.toFixed(2);
-  $("#atSar").style.color = a.sar_agreement > 0.6 ? EV.S.hex : "";
-  $("#atRes").textContent = a.residual.toFixed(3);
-  $("#atSpread").textContent = a.spread.toFixed(2);
-
-  const tw = $("#atThumbs"); tw.innerHTML = "";
-  a.frame_ids.forEach((k,i) => {
-    const el = document.createElement("button");
-    el.className = "th";
-    el.innerHTML = `<canvas width="116" height="116"></canvas><div class="d">${fmtDate(a.dates[i])}</div>`;
-    thumbCanvas(el.querySelector("canvas"), k, nx, ny, 0.13);
-    el.onclick = () => { st.activeFrame = k; st.cv.frame = frameLayer(k);
-      st.swipe = true; syncLayers(); draw(); };
-    tw.appendChild(el);
-  });
-
-  $("#atMiss").innerHTML = a.missing.length
-    ? "Not supported: " + a.missing.map(m => `${fmtDate(m.date)} <span>(${m.why})</span>`).join(" · ")
-    : "All passes support this feature.";
-  $("#atWarn").hidden = a.evidence_class !== "P";
-  $("#attr").classList.add("open");
-}
-
-const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-const fmtDate = (d) => { const p = d.split("-"); return `${p[2]} ${MON[+p[1]-1]}`; };
-
-/* ═══ 7. UI WIRING ═══ */
-
-const LAYERS = [
-  {k:"swipe",   n:"Swipe comparison", key:"W", rnd:false},
-  {k:"ev",      n:"Evidence map",     key:"E", rnd:false},
-  {k:"roads",   n:"Roads & buildings",key:"",  rnd:false},
-  {k:"change",  n:"Change detection", key:"",  rnd:false},
-  {k:"phantom", n:"Show phantoms",    key:"P", rnd:false}
-];
-
-function buildLayers(){
-  const host = $("#layers"); host.innerHTML = "";
-  LAYERS.forEach(L => {
-    const b = document.createElement("button");
-    b.className = "layer"; b.setAttribute("aria-pressed", String(!!st[L.k]));
-    b.innerHTML = `<i class="box${L.rnd ? " rnd" : ""}"></i><span>${L.n}</span>${L.key ? `<span class="k">${L.key}</span>` : ""}`;
-    b.onclick = () => { st[L.k] = !st[L.k]; if (L.k === "swipe" && !st.swipe) st.activeFrame = null;
-      syncLayers(); draw(); };
-    b.dataset.k = L.k; host.appendChild(b);
-  });
-}
-function syncLayers(){
-  document.querySelectorAll(".layer").forEach(b => b.setAttribute("aria-pressed", String(!!st[b.dataset.k])));
-}
-
-function buildJump(){
-  const j = $("#jump");
-  AOIS.forEach(a => {
-    const b = document.createElement("button");
-    b.innerHTML = `<kbd>${a.key}</kbd>${a.name.split(" ·")[0]}`;
-    b.onclick = () => setAOI(a.id);
-    b.dataset.id = a.id; j.appendChild(b);
-  });
-  const sel = $("#aoi");
-  MOCK.aois().forEach(a => { const o = document.createElement("option");
-    o.value = a.id; o.textContent = a.name; sel.appendChild(o); });
-  sel.onchange = () => setAOI(sel.value);
-}
-
-function buildFrames(){
-  const host = $("#frames");
-  host.querySelectorAll(".fr").forEach(n => n.remove());
-  st.res.frames.forEach(fr => {
-    const b = document.createElement("button");
-    b.className = "fr" + (fr.used ? "" : " off");
-    b.setAttribute("aria-pressed", "false");
-    b.innerHTML = `<canvas width="108" height="108"></canvas>
-      <div class="d">${fmtDate(fr.date)}</div>
-      <div class="c">${Math.round(fr.clear_fraction*100)}%</div>`;
-    thumbCanvas(b.querySelector("canvas"), fr.k, 0.5, 0.5, 1.0);
-    b.title = fr.used ? `Pass ${fr.k+1} · used` : `Pass ${fr.k+1} · rejected, clear fraction ${fr.clear_fraction}`;
-    b.onclick = () => {
-      st.activeFrame = st.activeFrame === fr.k ? null : fr.k;
-      if (st.activeFrame != null){ st.cv.frame = frameLayer(fr.k); st.swipe = true; }
-      document.querySelectorAll(".fr").forEach((n,i) =>
-        n.setAttribute("aria-pressed", String(i === st.activeFrame)));
-      syncLayers(); draw();
-    };
-    host.appendChild(b);
-  });
-}
-
-function setAOI(id){
-  st.aoi = AOIS.find(a => a.id === id);
-  st.scene = makeScene(st.aoi);
-  st.res = MOCK.result(id);
-  st.activeFrame = null; st.isolate = null;
-  st.phantom = st.aoi.kind === "bare";
-  Object.keys(_cache).forEach(k => delete _cache[k]);
-  $("#aoi").value = id;
-  document.querySelectorAll("#jump button").forEach(b =>
-    b.setAttribute("aria-current", String(b.dataset.id === id)));
-  document.querySelectorAll(".evrow,[data-c]").forEach(b => b.setAttribute && b.setAttribute("aria-pressed","false"));
-  $("#attr").classList.remove("open");
-  const [w,s,e,n] = st.aoi.bbox;
-  $("#ovAoi").innerHTML =
-    `<div class="tag"><strong>${st.aoi.name}</strong></div><br>
-     <div class="tag">${s.toFixed(2)}–${n.toFixed(2)}°N · ${w.toFixed(2)}–${e.toFixed(2)}°E</div>`;
-  const used = st.res.frames.filter(f => f.used).length;
-  $("#ovState").innerHTML =
-    `<div class="tag">K = <strong>${used}</strong> of ${st.res.frames.length} passes fused</div><br>
-     <div class="tag">S1 SAR <strong>${st.res.sar.date}</strong> · VV+VH</div>`;
-  rebuild(); buildFrames(); syncLayers();
-}
-
-/* evidence isolate */
-function bindIsolate(){
-  const set = (c) => {
-    st.isolate = st.isolate === c ? null : c;
-    document.querySelectorAll('.evrow, .evbar button').forEach(b =>
-      b.setAttribute("aria-pressed", String(b.dataset.c === st.isolate)));
-    if (st.isolate) st.ev = true;
-    syncLayers(); draw();
-  };
-  document.querySelectorAll('.evrow, .evbar button').forEach(b => b.onclick = () => set(b.dataset.c));
-}
-
-/* swipe drag */
-function bindSwipe(){
-  let drag = false;
-  const move = (e) => {
-    if (!drag) return;
-    const r = wrap.getBoundingClientRect();
-    const cx = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
-    st.swipeX = Math.max(0, Math.min(1, cx / r.width)); draw();
-  };
-  const h = $("#swipe");
-  h.addEventListener("pointerdown", (e) => { drag = true; h.setPointerCapture(e.pointerId); e.preventDefault(); });
-  window.addEventListener("pointermove", move);
-  window.addEventListener("pointerup", () => drag = false);
-}
-
-/* click → attribution */
-wrap.addEventListener("click", (e) => {
-  if (e.target.closest("#swipe") || e.target.closest(".attr")) return;
-  const r = wrap.getBoundingClientRect();
-  openAttr((e.clientX - r.left)/r.width, (e.clientY - r.top)/r.height);
-});
-wrap.addEventListener("mousemove", (e) => {
-  const r = wrap.getBoundingClientRect();
-  const nx = (e.clientX - r.left)/r.width, ny = (e.clientY - r.top)/r.height;
-  if (nx < 0 || nx > 1 || ny < 0 || ny > 1 || !st.maskData) return;
-  const [lat, lon] = lonlat(nx, ny);
-  const c = classAt(Math.round(nx*(st.W-1)), Math.round(ny*(st.H-1)));
-  $("#ovCur").innerHTML = `${lat}°N ${lon}°E · <strong style="color:${EV[c].hex}">${EV[c].name}</strong>`;
-});
-$("#atClose").onclick = () => $("#attr").classList.remove("open");
-
-$("#op").oninput = (e) => { st.op = e.target.value/100; $("#opv").textContent = e.target.value + "%"; draw(); };
-$("#cmp").onchange = (e) => { st.cmp = e.target.value; st.activeFrame = null; st.swipe = true; syncLayers(); draw(); };
-$("#tabMap").onclick = () => tab(true);
-$("#tabRes").onclick = () => tab(false);
-function tab(m){
-  $("#tabMap").setAttribute("aria-selected", String(m));
-  $("#tabRes").setAttribute("aria-selected", String(!m));
-  $("#stageMap").hidden = !m; $("#stageRes").hidden = m;
-  if (m) requestAnimationFrame(rebuild);
-}
-
-window.addEventListener("keydown", (e) => {
-  if (e.target.matches("input,select,textarea")) return;
-  const k = e.key.toLowerCase();
-  const a = AOIS.find(x => x.key === e.key);
-  if (a) return setAOI(a.id);
-  if (k === "e"){ st.ev = !st.ev; syncLayers(); draw(); }
-  if (k === "w"){ st.swipe = !st.swipe; syncLayers(); draw(); }
-  if (k === "p"){ st.phantom = !st.phantom; syncLayers(); draw(); }
-  if (e.key === "Escape") $("#attr").classList.remove("open");
-});
-
-/* scale bar: scene spans 2.56 km (256 px @ 10 m) */
-function scalebar(){
-  const px = wrap.getBoundingClientRect().width || 800;
-  const mpp = 2560 / px;
-  const targets = [100, 200, 250, 500, 1000];
-  let m = targets.find(t => t/mpp > 70 && t/mpp < 200) || 500;
-  $("#sbline").style.width = Math.round(m/mpp) + "px";
-  $("#sbtxt").textContent = m >= 1000 ? (m/1000) + " km" : m + " m";
-}
-
-/* ═══ 8. RESULTS ═══ */
-
-function num(v, i, lower){
-  if (v == null) return `<td class="n">—</td>`;
-  const best = RESULTS.best[i];
-  const hit = Math.abs(v - best) < 1e-9;
-  return `<td class="${hit ? "best" : ""}">${v.toFixed(v >= 10 ? 1 : 2)}</td>`;
-}
-function buildTables(){
-  const t = $("#tblMain");
-  t.innerHTML = `<thead><tr><th>Method</th>${RESULTS.cols.map(c => `<th>${c}</th>`).join("")}</tr></thead>
-  <tbody>${RESULTS.rows.map(r => `<tr class="${r.us ? "us" : ""}"><td>${r.m}</td>${
-    r.v.map((v,i) => num(v,i)).join("")}</tr>`).join("")}</tbody>`;
-
-  const A = RESULTS.abl, t2 = $("#tblAbl");
-  t2.innerHTML = `<thead><tr><th>Variant</th>${A.cols.map(c => `<th>${c}</th>`).join("")}</tr></thead>
-  <tbody>${A.rows.map((r,ri) => `<tr class="${ri === 0 ? "us" : ""}"><td>${r.m}</td>${
-    r.v.map(v => v == null ? `<td class="n">—</td>` : `<td>${v.toFixed(2)}</td>`).join("")}</tr>`).join("")}</tbody>`;
-}
-
-function lineChart(host, pts, xlab, ylab, xdom, ydom, accent, marks){
-  const W = 420, H = 250, ml = 46, mb = 34, mt = 12, mr = 12;
-  const sx = (v) => ml + (v - xdom[0])/(xdom[1]-xdom[0]) * (W - ml - mr);
-  const sy = (v) => H - mb - (v - ydom[0])/(ydom[1]-ydom[0]) * (H - mb - mt);
-  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${ylab} against ${xlab}">`;
-  for (let i = 0; i <= 4; i++){
-    const v = ydom[0] + i*(ydom[1]-ydom[0])/4, y = sy(v);
-    s += `<line x1="${ml}" y1="${y}" x2="${W-mr}" y2="${y}" stroke="#20242A" stroke-width="1"/>`;
-    s += `<text x="${ml-8}" y="${y+3.5}" fill="#575E67" font-size="9" font-family="IBM Plex Mono,monospace" text-anchor="end">${v.toFixed(2)}</text>`;
-  }
-  marks.forEach(m => {
-    s += `<line x1="${sx(m)}" y1="${mt}" x2="${sx(m)}" y2="${H-mb}" stroke="#16191D" stroke-width="1"/>`;
-    s += `<text x="${sx(m)}" y="${H-mb+15}" fill="#575E67" font-size="9" font-family="IBM Plex Mono,monospace" text-anchor="middle">${m}</text>`;
-  });
-  const d = pts.map((p,i) => `${i ? "L" : "M"}${sx(p[0]).toFixed(1)},${sy(p[1]).toFixed(1)}`).join(" ");
-  s += `<path d="${d} L${sx(pts[pts.length-1][0])},${H-mb} L${sx(pts[0][0])},${H-mb} Z" fill="${accent}" opacity=".10"/>`;
-  s += `<path d="${d}" fill="none" stroke="${accent}" stroke-width="1.8"/>`;
-  pts.forEach(p => s += `<circle cx="${sx(p[0]).toFixed(1)}" cy="${sy(p[1]).toFixed(1)}" r="2.4" fill="#050607" stroke="${accent}" stroke-width="1.4"/>`);
-  const last = pts[pts.length-1];
-  s += `<circle cx="${sx(last[0])}" cy="${sy(last[1])}" r="4" fill="${accent}"/>`;
-  s += `<text x="${ml}" y="${H-6}" fill="#8A929B" font-size="9" font-family="IBM Plex Mono,monospace" letter-spacing="1.4">${xlab.toUpperCase()}</text>`;
-  s += `<text transform="translate(12,${mt+8}) rotate(-90)" fill="#8A929B" font-size="9" font-family="IBM Plex Mono,monospace" letter-spacing="1.4" text-anchor="end">${ylab.toUpperCase()}</text>`;
-  s += `</svg>`;
-  host.innerHTML = s;
-}
-
-function buildCharts(){
-  lineChart($("#chartK"), RESULTS.ksweep, "passes fused (K)", "road IoU",
-    [1,8], [0.40,0.65], "#FFFFFF", [1,2,3,4,5,6,7,8]);
-  const host = $("#chartR");
-  lineChart(host, RESULTS.roc, "false positive rate", "true positive rate",
-    [0,1], [0,1], "#3DFF9A", [0,0.25,0.5,0.75,1]);
-  host.querySelector("svg").insertAdjacentHTML("beforeend",
-    `<line x1="46" y1="216" x2="408" y2="12" stroke="#2C3138" stroke-width="1" stroke-dasharray="4 4"/>
-     <text x="300" y="120" fill="#575E67" font-size="9" font-family="IBM Plex Mono,monospace">chance</text>`);
-}
-
-/* ═══ 9. BOOT ═══ */
-
-buildLayers(); buildJump(); bindIsolate(); bindSwipe(); buildTables(); buildCharts();
-setAOI("kolkata");
-scalebar();
-
-let rt;
-new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(() => { if (!$("#stageMap").hidden){ rebuild(); scalebar(); } }, 140); })
-  .observe(wrap);
-</script>
-
-<!-- ABYSSOS-3D:begin -->
-<button id="abx3d-btn" type="button" style="position:fixed;right:16px;bottom:56px;z-index:2147482000;padding:8px 14px;border-radius:8px;border:1px solid rgba(90,176,255,.7);background:rgba(7,9,13,.85);color:#e8ecf4;font:600 12px system-ui,sans-serif;letter-spacing:.08em;cursor:pointer">3D EVIDENCE STACK (V)</button>
-<div id="abx3d-overlay" style="display:none;position:fixed;inset:0;z-index:2147483000;background:#07090d">
-  <iframe id="abx3d-frame" title="3D evidence stack" style="width:100%;height:100%;border:0"></iframe>
-  <button id="abx3d-close" type="button" style="position:absolute;top:14px;left:50%;transform:translateX(-50%);padding:6px 12px;border-radius:6px;border:1px solid rgba(255,255,255,.3);background:rgba(7,9,13,.85);color:#e8ecf4;font:600 12px system-ui,sans-serif;letter-spacing:.08em;cursor:pointer">CLOSE (Esc)</button>
-</div>
 <script>
 (function(){
-  var btn=document.getElementById('abx3d-btn'),ov=document.getElementById('abx3d-overlay'),fr=document.getElementById('abx3d-frame'),cl=document.getElementById('abx3d-close');
-  function open(){if(!fr.getAttribute('src'))fr.setAttribute('src','evidence3d.html');ov.style.display='block';setTimeout(function(){fr.focus();},50);}
-  function close(){ov.style.display='none';}
-  btn.addEventListener('click',open);cl.addEventListener('click',close);
-  window.addEventListener('message',function(e){if(e.data==='abx3d-close')close();});
-  window.addEventListener('keydown',function(e){
-    var tg=e.target&&e.target.tagName;if(tg==='INPUT'||tg==='TEXTAREA'||tg==='SELECT')return;
-    if(ov.style.display==='block'){if(e.key==='Escape')close();return;}
-    if((e.key==='v'||e.key==='V')&&!e.ctrlKey&&!e.metaKey&&!e.altKey)open();
-  });
+  var V='#3DFF9A',S='#3FE0FF',P='#FF3B4A';
+  var pattern=[V,V,S,V, V,V,V,S, S,V,P,V, V,S,V,V];
+  var px=document.getElementById('px'),cap=document.getElementById('cap');
+  pattern.forEach(function(k,i){var d=document.createElement('div');d.className='c';d.style.setProperty('--k',k);d.style.setProperty('--i',i);px.appendChild(d);});
+  var A='<b>Before:</b> one 10 m pixel holds a single value. Nothing says what is inside it.';
+  var B='<b>After:</b> sixteen 2.5 m sub-pixels, each labelled by how it was supported.';
+  var on=false;
+  function tick(){on=!on;px.classList.toggle('split',on);cap.innerHTML=on?B:A;}
+  cap.innerHTML=A;
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){px.classList.add('split');cap.innerHTML=B;return;}
+  setTimeout(function(){tick();setInterval(tick,3400);},900);
 })();
 </script>
-<!-- ABYSSOS-3D:end -->
 </body>
 </html>
