@@ -335,6 +335,7 @@ td.n{color:var(--dim)}
 }
 </style>
 
+<link rel="stylesheet" href="console-theme.css">
 </head>
 <body>
 <div class="app">
@@ -1281,7 +1282,7 @@ new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(() => { if (!$("#st
 <script>
 (function(){
   var btn=document.getElementById('abx3d-btn'),ov=document.getElementById('abx3d-overlay'),fr=document.getElementById('abx3d-frame'),cl=document.getElementById('abx3d-close');
-  function open(){if(!fr.getAttribute('src'))fr.setAttribute('src','evidence3d.html');ov.style.display='block';setTimeout(function(){fr.focus();},50);}
+  function open(){if(!fr.getAttribute('src'))fr.setAttribute('src','viewer3d.html');ov.style.display='block';setTimeout(function(){fr.focus();},50);}
   function close(){ov.style.display='none';}
   btn.addEventListener('click',open);cl.addEventListener('click',close);
   window.addEventListener('message',function(e){if(e.data==='abx3d-close')close();});

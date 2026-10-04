@@ -1,0 +1,17 @@
+/* Abyssos console theme layer. Undo: delete the <link> to this file in console.html. */
+:root{--bg:#040506;--panel:#0B0D10;--panel-2:#12151A;--panel-3:#181C22;--line:#1C2128;--line-2:#2A3039}
+::selection{background:rgba(63,224,255,.28)}
+*{scrollbar-width:thin;scrollbar-color:#2A3039 transparent}
+.top{background:linear-gradient(180deg,#0E1116,#0A0B0D);border-bottom-color:var(--line-2)}
+.wm b{background:linear-gradient(90deg,#fff,#9fb4c7);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ctl{transition:border-color .15s}
+.ctl:hover,.ctl:focus-within{border-color:var(--ev-s)}
+.tabs button{transition:color .15s,background .15s}
+.tabs button:hover{color:var(--text)}
+.tabs button[aria-selected="true"]{box-shadow:0 0 0 1px var(--accent)}
+.pill{background:rgba(255,255,255,.02)}
+.jump button{transition:color .15s,background .15s}
+.jump button:hover{color:var(--text);background:var(--panel)}
+.jump button[aria-current="true"]::after{background:var(--ev-s);height:2px}
+@media(max-width:820px){.top{gap:8px}.wm span{display:none}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Abyssos - 3D</title>
+<style>
+  html,body{margin:0;height:100%;background:#050607;font-family:"IBM Plex Mono",ui-monospace,monospace}
+  #t{position:fixed;top:0;left:0;right:0;height:44px;display:flex;background:#0A0B0D;border-bottom:1px solid #20242A}
+  #t button{background:none;border:0;border-right:1px solid #20242A;color:#8A929B;font:10.5px "IBM Plex Mono",ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase;padding:0 20px;cursor:pointer}
+  #t button.on{background:#fff;color:#000;font-weight:600}
+  iframe{position:fixed;top:44px;left:0;width:100%;height:calc(100% - 44px);border:0;display:none;background:#050607}
+</style>
+</head>
+<body>
+<div id="t">
+  <button type="button" data-f="f-stack" class="on">Evidence stack</button>
+  <button type="button" data-f="f-lens">Pixel lens</button>
+</div>
+<iframe id="f-stack" title="Evidence stack" src="evidence3d.html" style="display:block"></iframe>
+<iframe id="f-lens" title="Pixel lens"></iframe>
+<script>
+(function(){
+  var srcs={'f-stack':'evidence3d.html','f-lens':'pixellens.html'};
+  var btns=document.querySelectorAll('#t button');
+  function show(id){
+    Object.keys(srcs).forEach(function(k){
+      var f=document.getElementById(k);
+      if(k===id){if(!f.getAttribute('src'))f.setAttribute('src',srcs[k]);f.style.display='block';setTimeout(function(){f.focus();},30);}
+      else f.style.display='none';
+    });
+    btns.forEach(function(b){b.className=b.getAttribute('data-f')===id?'on':'';});
+  }
+  btns.forEach(function(b){b.addEventListener('click',function(){show(b.getAttribute('data-f'));});});
+  function close(){try{parent.postMessage('abx3d-close','*');}catch(e){}}
+  window.addEventListener('message',function(e){if(e.data==='abx3d-close')close();});
+  window.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+})();
+</script>
+</body>
+</html>

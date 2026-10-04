@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Abyssos - Pixel Lens</title>
+<style>
+  html,body{margin:0;height:100%;background:#050607;color:#EEF1F4;font-family:"IBM Plex Sans",system-ui,"Segoe UI",sans-serif;overflow:hidden}
+  #stage{position:fixed;inset:0}
+  #err{position:fixed;inset:0;display:none;place-items:center;color:#8A929B}
+  .p{position:fixed;background:rgba(10,11,13,.8);border:1px solid #2C3138;padding:12px 14px;backdrop-filter:blur(8px)}
+  .e{font:10px "IBM Plex Mono",ui-monospace,monospace;letter-spacing:.14em;color:#8A929B;text-transform:uppercase}
+  .s{font-size:12px;color:#aab3c5;margin-top:4px;line-height:1.5}
+  #title{top:14px;left:16px;max-width:300px}
+  #counts{top:96px;left:16px;width:260px}
+  .row{display:flex;align-items:center;gap:8px;font-size:12px;margin:6px 0}
+  .row b{margin-left:auto;font-variant-numeric:tabular-nums}
+  .dot{width:9px;height:9px}
+  #bar{left:50%;bottom:44px;transform:translateX(-50%);display:flex;gap:18px;flex-wrap:wrap;justify-content:center;align-items:center;max-width:96vw}
+  .grp{display:flex;border:1px solid #2C3138}
+  .grp button,.t{background:none;border:0;color:#8A929B;font:10.5px "IBM Plex Mono",ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase;padding:8px 12px;cursor:pointer}
+  .grp button.on,.t.on{background:#fff;color:#000;font-weight:600}
+  .t{border:1px solid #2C3138}
+  #note{position:fixed;left:12px;right:12px;bottom:10px;text-align:center;font-size:11px;color:#6f7a8e}
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div id="err">WebGL is not available in this browser.</div>
+<div id="title" class="p">
+  <div class="e">&#193;byssos &middot; Pixel Lens</div>
+  <div class="s">One 10 m Sentinel-2 pixel, split into sub-pixels. Each carries the evidence that supports it.</div>
+</div>
+<div id="counts" class="p">
+  <div class="e" id="cellinfo"></div>
+  <div class="row"><span class="dot" style="background:#3DFF9A"></span>Verified<b id="c-v">0</b></div>
+  <div class="row"><span class="dot" style="background:#3FE0FF"></span>Radar-supported<b id="c-r">0</b></div>
+  <div class="row"><span class="dot" style="background:#FF3B4A"></span>Prior-only<b id="c-p">0</b></div>
+  <div class="s" id="verdict"></div>
+</div>
+<div id="bar" class="p">
+  <div class="grp" id="g-scene"></div>
+  <div class="grp" id="g-scale"></div>
+  <button class="t on" id="b-ev" type="button">Evidence (E)</button>
+</div>
+<div id="note">Illustrative simulation. Assumes about 2.5 m of real detail from 8 offset passes; finer cells carry no observed detail. Not job output or Sentinel data. Keys 1-5 change scale. Esc closes.</div>
+
+<script src="vendor/three.min.js"></script>
+<script>window.THREE||document.write('<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"><\/script>');</script>
+<script src="vendor/OrbitControls.js"></script>
+<script>window.THREE&&!THREE.OrbitControls&&document.write('<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"><\/script>');</script>
+<script>
+(function(){
+'use strict';
+function $(i){return document.getElementById(i);}
+var SCS=[1,2,4,8,20],S=4,SCN='rb',EV=true,LIMIT=2.5;
+var SCENES=[['rb','Roads + buildings'],['fld','Field boundaries'],['dmg','Building damage']];
+var HEX={v:0x3DFF9A,r:0x3FE0FF,p:0xFF3B4A};
+function hs(a,b){var x=Math.sin(a*127.1+b*311.7)*43758.5453;return x-Math.floor(x);}
+function truth(k,u,v){
+  if(k==='rb'){if(Math.abs(u-v)/1.4142<0.06)return 0.15;if(u>0.58&&u<0.84&&v>0.12&&v<0.36)return 1;return 0;}
+  if(k==='fld'){if(Math.abs(u-0.5)<0.025)return 0.3;if(u>0.5&&Math.abs(v-0.4)<0.025)return 0.3;return 0;}
+  if(u>0.2&&u<0.8&&v>0.25&&v<0.75){if(u<0.5)return 1;return 0.15+0.2*hs(Math.floor(u*20),Math.floor(v*20));}
+  return 0;
+}
+var renderer;try{renderer=new THREE.WebGLRenderer({antialias:true});}catch(e){$('err').style.display='grid';return;}
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.setClearColor(0x050607,1);
+$('stage').appendChild(renderer.domElement);
+var scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(40,1,0.1,100);cam.position.set(7,7.5,9);
+var ctl=new THREE.OrbitControls(cam,renderer.domElement);
+ctl.target.set(0,0.6,0);ctl.enableDamping=true;ctl.autoRotate=true;ctl.autoRotateSpeed=0.5;ctl.maxPolarAngle=Math.PI*0.52;
+ctl.addEventListener('start',function(){ctl.autoRotate=false;});
+scene.add(new THREE.AmbientLight(0xffffff,0.65));
+var sun=new THREE.DirectionalLight(0xffffff,0.8);sun.position.set(5,9,4);scene.add(sun);
+var W=8;
+scene.add(new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(W+0.1,0.02,W+0.1)),new THREE.LineBasicMaterial({color:0xffffff})));
+var base=new THREE.Mesh(new THREE.BoxGeometry(W+0.2,0.1,W+0.2),new THREE.MeshLambertMaterial({color:0x0b0d10}));base.position.y=-0.07;scene.add(base);
+var mesh=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshLambertMaterial({color:0xffffff}),400);
+mesh.frustumCulled=false;scene.add(mesh);
+var dm=new THREE.Object3D(),col=new THREE.Color();
+function build(){
+  var n=S,cw=W/n,res=10/S,f=res>=LIMIT?0:1-(res/LIMIT)*(res/LIMIT),cnt={v:0,r:0,p:0},idx=0,m=3;
+  mesh.count=n*n;
+  for(var j=0;j<n;j++)for(var i=0;i<n;i++){
+    var val=0;
+    for(var a=0;a<m;a++)for(var b=0;b<m;b++)val+=truth(SCN,(i+(a+0.5)/m)/n,(j+(b+0.5)/m)/n);
+    val/=m*m;
+    var cls=hs(i*7+S,j*13)<f?'p':(hs(i,j+S*3)<0.22?'r':'v');cnt[cls]++;
+    var hgt=0.06+val*2.2;
+    dm.position.set(-W/2+cw*(i+0.5),hgt/2,-W/2+cw*(j+0.5));dm.scale.set(cw*0.9,hgt,cw*0.9);dm.updateMatrix();
+    mesh.setMatrixAt(idx,dm.matrix);
+    if(EV)col.setHex(HEX[cls]);else{var g=0.28+0.5*val;col.setRGB(g,g,g*1.02);}
+    mesh.setColorAt(idx,col);idx++;
+  }
+  mesh.instanceMatrix.needsUpdate=true;mesh.instanceColor.needsUpdate=true;
+  var t=n*n;function pc(k){return cnt[k]+' ('+Math.round(100*cnt[k]/t)+'%)';}
+  $('c-v').textContent=pc('v');$('c-r').textContent=pc('r');$('c-p').textContent=pc('p');
+  $('cellinfo').textContent=S+'x scale \u00b7 '+n+' x '+n+' cells \u00b7 '+res.toFixed(2).replace(/\.?0+$/,'')+' m each';
+  $('verdict').textContent=res>=LIMIT?'Every cell is at or above the resolution the passes can support.':
+    'Cells finer than '+LIMIT+' m hold no observed detail. The output looks sharper but the evidence says guess.';
+  var sb=$('g-scale').children;for(var q=0;q<sb.length;q++)sb[q].className=SCS[q]===S?'on':'';
+  var cb=$('g-scene').children;for(var r=0;r<cb.length;r++)cb[r].className=SCENES[r][0]===SCN?'on':'';
+  $('b-ev').className='t'+(EV?' on':'');
+}
+SCS.forEach(function(v){var b=document.createElement('button');b.type='button';b.textContent=v+'x';b.onclick=function(){S=v;build();};$('g-scale').appendChild(b);});
+SCENES.forEach(function(s){var b=document.createElement('button');b.type='button';b.textContent=s[1];b.onclick=function(){SCN=s[0];build();};$('g-scene').appendChild(b);});
+$('b-ev').onclick=function(){EV=!EV;build();};
+window.addEventListener('keydown',function(e){
+  if(e.ctrlKey||e.metaKey||e.altKey)return;
+  var n=parseInt(e.key,10);
+  if(n>=1&&n<=5){S=SCS[n-1];build();}
+  else if(e.key==='e'||e.key==='E'){EV=!EV;build();}
+  else if(e.key==='Escape'){try{parent.postMessage('abx3d-close','*');}catch(x){}}
+});
+function resize(){var w=window.innerWidth,h=window.innerHeight;renderer.setSize(w,h);cam.aspect=w/h;cam.updateProjectionMatrix();}
+window.addEventListener('resize',resize);resize();build();
+(function loop(){requestAnimationFrame(loop);ctl.update();renderer.render(scene,cam);})();
+})();
+</script>
+</body>
+</html>

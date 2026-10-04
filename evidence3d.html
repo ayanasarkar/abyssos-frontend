@@ -303,7 +303,7 @@ function updateSelection(){
     var verdict=cls==='verified'?'Confirmed by several real passes.'
       :cls==='radar'?'Optical was blocked; Sentinel-1 radar confirms the structure.'
       :'The model\u2019s best guess. Treat with caution.';
-    html+='<p class="sub">Clear in '+s.n+' of '+K+' passes (verified needs 3).</p>'+chips;
+    html+='<p class="sub">Clear in '+s.n+' of '+K+' passes (demo rule: 3 clear passes. The real auditor uses consistency residual, ensemble disagreement and SAR edge agreement).</p>'+chips;
     html+='<p>'+verdict+'</p><p class="sub">Sentinel-1 radar: '+(s.sar?'confirms the structure':'no confirmation')+'.</p>';
   }
   panel.innerHTML=html;panel.style.display='block';
