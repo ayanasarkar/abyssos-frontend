@@ -32,7 +32,7 @@
     btns.forEach(function(b){b.className=b.getAttribute('data-f')===id?'on':'';});
   }
   btns.forEach(function(b){b.addEventListener('click',function(){show(b.getAttribute('data-f'));});});
-  function close(){try{parent.postMessage('abx3d-close','*');}catch(e){}}
+  function close(){if(window.parent===window){location.href='index.html';return;}try{parent.postMessage('abx3d-close','*');}catch(e){}}
   window.addEventListener('message',function(e){if(e.data==='abx3d-close')close();});
   window.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
 })();
