@@ -1272,5 +1272,26 @@ new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(() => { if (!$("#st
   .observe(wrap);
 </script>
 
+<!-- ABYSSOS-3D:begin -->
+<button id="abx3d-btn" type="button" style="position:fixed;right:16px;bottom:56px;z-index:2147482000;padding:8px 14px;border-radius:8px;border:1px solid rgba(90,176,255,.7);background:rgba(7,9,13,.85);color:#e8ecf4;font:600 12px system-ui,sans-serif;letter-spacing:.08em;cursor:pointer">3D EVIDENCE STACK (V)</button>
+<div id="abx3d-overlay" style="display:none;position:fixed;inset:0;z-index:2147483000;background:#07090d">
+  <iframe id="abx3d-frame" title="3D evidence stack" style="width:100%;height:100%;border:0"></iframe>
+  <button id="abx3d-close" type="button" style="position:absolute;top:14px;left:50%;transform:translateX(-50%);padding:6px 12px;border-radius:6px;border:1px solid rgba(255,255,255,.3);background:rgba(7,9,13,.85);color:#e8ecf4;font:600 12px system-ui,sans-serif;letter-spacing:.08em;cursor:pointer">CLOSE (Esc)</button>
+</div>
+<script>
+(function(){
+  var btn=document.getElementById('abx3d-btn'),ov=document.getElementById('abx3d-overlay'),fr=document.getElementById('abx3d-frame'),cl=document.getElementById('abx3d-close');
+  function open(){if(!fr.getAttribute('src'))fr.setAttribute('src','evidence3d.html');ov.style.display='block';setTimeout(function(){fr.focus();},50);}
+  function close(){ov.style.display='none';}
+  btn.addEventListener('click',open);cl.addEventListener('click',close);
+  window.addEventListener('message',function(e){if(e.data==='abx3d-close')close();});
+  window.addEventListener('keydown',function(e){
+    var tg=e.target&&e.target.tagName;if(tg==='INPUT'||tg==='TEXTAREA'||tg==='SELECT')return;
+    if(ov.style.display==='block'){if(e.key==='Escape')close();return;}
+    if((e.key==='v'||e.key==='V')&&!e.ctrlKey&&!e.metaKey&&!e.altKey)open();
+  });
+})();
+</script>
+<!-- ABYSSOS-3D:end -->
 </body>
 </html>
